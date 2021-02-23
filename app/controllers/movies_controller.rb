@@ -7,25 +7,32 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if(params[:ratings] == nil && session[:ratings] == nil)
-      @ratings_to_show = []
-    elsif(params[:ratings] != nil)
-      @ratings_to_show = params[:ratings].keys
-      session[:ratings] = params[:ratings]
-    else
-      @ratings_to_show = session[:ratings].keys
+    # user is NOT using special links
+    if(params[:ratings] == nil && params[:sort] == nil) 
+      # if session exists, page has already been visited --> use stored values
+      @ratings_to_show = session[:ratings] == nil ? [] : session[:ratings]
+      @sort = session[:sort] == nil ? "" : session
+      
+    # page is refreshed from checkbox submit or sort 
+    else 
+      if(params[:ratings] == nil)
+        # no boxes selected --> show all
+        @ratings_to_show = [] 
+      else
+        @ratings_to_show =  params[:ratings].keys
+      end
+      # save updates in session 
+      session[:ratings] = @ratings_to_show  
+      
+      if(params[:sort] != nil)
+        @sort = params[:sort]
+        session[:sort] = params[:sort]
+      else
+        @sort = ""
+      end
     end
     
-    if(params[:sort] == nil && session[:ratings] == nil)
-      @sort = ""
-    elsif(params[:sort] != nil)
-      @sort = params[:sort]
-      session[:sort] = params[:sort]
-    else
-      @sort = session[:sort]
-    end
-    
-    @movies = Movie.with_ratings(@ratings_to_show).order(@sort)
+    @movies = Movie.with_ratings(@ratings_to_show).order(params[:sort])
     @all_ratings = Movie.all_ratings()
   end
 
