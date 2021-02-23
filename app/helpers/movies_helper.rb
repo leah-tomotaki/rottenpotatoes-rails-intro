@@ -5,7 +5,7 @@ module MoviesHelper
   end
   
   def select_header(field)
-    if((params[:sort]).to_s == field)
+    if(@sort == field)
       return "hilite bg-warning"
     else
       return nil
