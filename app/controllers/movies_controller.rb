@@ -7,11 +7,12 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # session.clear()
     # user is NOT using special links
     if(params[:ratings] == nil && params[:sort] == nil) 
       # if session exists, page has already been visited --> use stored values
       @ratings_to_show = session[:ratings] == nil ? [] : session[:ratings]
-      @sort = session[:sort] == nil ? "" : session
+      @sort = session[:sort] == nil ? "" : session[:sort]
       
     # page is refreshed from checkbox submit or sort 
     else 
@@ -28,11 +29,20 @@ class MoviesController < ApplicationController
         @sort = params[:sort]
         session[:sort] = params[:sort]
       else
-        @sort = ""
+        @sort = "" #Default value, no sort
       end
     end
     
-    @movies = Movie.with_ratings(@ratings_to_show).order(params[:sort])
+    # Update column header colors
+    @release_date_class = ""
+    @title_class = ""
+    if(@sort == "title")
+      @title_class = "hilite bg-warning"
+    elsif(@sort == "release_date")
+      @release_date_class = "hilite bg-warning"
+    end
+    
+    @movies = Movie.with_ratings(@ratings_to_show).order(@sort)
     @all_ratings = Movie.all_ratings()
   end
 
